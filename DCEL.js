@@ -1,7 +1,7 @@
 function DCEL() {
     this.vertices = [];
-    this.aristas = {};
-    this.celdas = {};
+    this.aristas = [];
+    this.celdas = [];
 }
 
 DCEL.prototype.Celda = function (halfEdge) {

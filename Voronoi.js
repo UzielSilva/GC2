@@ -42,11 +42,6 @@ function Voronoi(sitios, bbox) {
             xR = calculaCoordenadaXCentro(b,'pr',a.y);
         }
     // No puede suceder que xR < a.p.x < xL porque xL < xR
-        if(xL - a.x > -1e-9 &&
-          xL - a.x < 1e-9 &&
-          a.x - xR > -1e-9 &&
-          a.x - xR < -1e-9)
-            return 0;
         var r = (xL > a.x ? -1 : 0);
         r += (a.x > xR ? 1 : 0 );
         return r;
@@ -89,7 +84,11 @@ function Voronoi(sitios, bbox) {
     };
     
     this.diagrama = new DCEL();
-    this.sitios = sitios;
+    this.sitios = [];
+    var v = this;
+    sitios.forEach(function(p){
+        v.sitios.push(p);
+    });
     this.bbox = bbox;
     this.lineaDePlaya = new AVLTree(
         null,
@@ -166,8 +165,12 @@ Voronoi.prototype.procesarEvento = function(evento) {
             }
             this.diagrama.aristas[[evento.p.x,evento.p.y,p[0].x,p[0].y]] = halfEdge1;
             this.diagrama.aristas[[p[0].x,p[0].y,evento.p.x,evento.p.y]] = halfEdge2;
+            this.diagrama.aristas.push(halfEdge1);
+            this.diagrama.aristas.push(halfEdge2);
+
         }
         this.diagrama.celdas[[evento.p.x,evento.p.y]] = nuevaCelda;
+        this.diagrama.celdas.push(nuevaCelda);
     } else if(evento.tipo == 'circulo'){
         this.yL = evento.p.y;
         this.xL = evento.p.x;
@@ -197,6 +200,8 @@ Voronoi.prototype.procesarEvento = function(evento) {
         
         this.diagrama.aristas[[evento.p1.x,evento.p1.y,evento.p3.x,evento.p3.y]] = halfEdgeL;
         this.diagrama.aristas[[evento.p3.x,evento.p3.y,evento.p1.x,evento.p1.y]] = halfEdgeR;
+        this.diagrama.aristas.push(halfEdgeL);
+        this.diagrama.aristas.push(halfEdgeR);
         
         this.diagrama.vertices.push(nuevoVertice);
         a1.vertice = a2.vertice = halfEdgeL.vertice = nuevoVertice;
@@ -228,8 +233,8 @@ Voronoi.prototype.procesarEvento = function(evento) {
 
 Voronoi.prototype.calcular = function() {
     var colaDeEventos = this.colaDeEventos;
-    this.sitios.forEach(function(x) { 
-        colaDeEventos.add({p:x, tipo:'sitio'}) 
+    this.sitios.forEach(function(s) { 
+        colaDeEventos.add({p:{x:s.x,y:s.y}, tipo:'sitio'}) 
     });
     var evento= this.colaDeEventos.removeMaxMin('min');
     while(evento){
@@ -237,20 +242,6 @@ Voronoi.prototype.calcular = function() {
         evento = this.colaDeEventos.removeMaxMin('min');
     }
 };
-
-Voronoi.prototype.generaSitiosAleatorios = function(number,xMax, yMax, xMin, yMin){
-    var xM = (xMax?xMax:300),
-        xm = (xMin?xMin:0),
-        yM = (yMax?yMax:300),
-        ym = (yMin?yMin:0);
-    
-    var ret = [];
-    for (var i = 0; i < number; i++) { 
-        ret.push({x:Math.random()*xM + xm,y:Math.random()*yM + ym});
-    }
-    this.sitios = ret;
-    return ret;
-}
 
 Voronoi.prototype.dibujar = function(id) {
     var clipBoundingBox = function(halfEdge,lib){
@@ -296,8 +287,5 @@ Voronoi.prototype.dibujar = function(id) {
     this.diagrama.dibujar(id,bBox,true,clipBoundingBox,dibujaSitios);
 }
 
-var v = new Voronoi();
-
-v.generaSitiosAleatorios(30);
-var s = JSON.stringify(v.sitios);
+var v = new Voronoi(sitios);
 v.calcular();
