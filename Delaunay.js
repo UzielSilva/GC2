@@ -183,17 +183,6 @@ Delaunay.prototype.intercambiarArista = function(ha,hb,hc,hd){
             hc.par.celda.sitios.push(sitio);
         }
     });
-    
-    sitios1.forEach(function(sitio){
-        var ang = angulo(hd.vertice.coords,hb.vertice.coords,sitio);
-        if(ang > Math.PI){
-            sitio.triangulo = tha;
-            ha.par.celda.sitios.push(sitio);
-        } else {
-            sitio.triangulo = thc;
-            hc.par.celda.sitios.push(sitio);
-        }
-    });
 
     sitios2.forEach(function(sitio){
         var ang = angulo(hd.vertice.coords,hb.vertice.coords,sitio);
