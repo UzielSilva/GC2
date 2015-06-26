@@ -13,6 +13,21 @@ Util.generaSitiosAleatorios = function(number,xMax, yMax, xMin, yMin){
     return ret;
 }
 
+Util.generaRangosAleatorios = function(number,xMax, yMax, xMin, yMin){
+    var xM = (xMax?xMax:300),
+        xm = (xMin?xMin:0),
+        yM = (yMax?yMax:300),
+        ym = (yMin?yMin:0);
+    
+    var ret = [];
+    for (var i = 0; i < number; i++) { 
+        var v1 = Math.random()*xM + xm,
+            v2 = Math.random()*yM + ym;
+        ret.push([Math.min(v1,v2), Math.max(v1,v2)]);
+    }
+    return ret;
+}
+
 // poligono := [{x, y},...], el poligono debe ser convexo, los vértices ordenados.
 // punto : {x, y}
 
