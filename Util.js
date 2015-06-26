@@ -13,4 +13,24 @@ Util.generaSitiosAleatorios = function(number,xMax, yMax, xMin, yMin){
     return ret;
 }
 
+// poligono := [{x, y},...], el poligono debe ser convexo, los vértices ordenados.
+// punto : {x, y}
+
+Util.prototype.enPoligono = function(poligono, punto){
+    var orientacion = function(a,b,c){
+        return Math.asin(((b.x - a.x)*(c.y - b.y) - (b.y - a.y)*(c.x - b.x))/
+                     (Math.sqrt(Math.pow(b.x - a.x,2) + Math.pow(b.y - a.y,2))*
+                     Math.sqrt(Math.pow(c.x - b.x,2) + Math.pow(c.y - b.y,2))));
+    };
+    var izqDer;
+    if(orientacion(poligono[poligono.length - 1], poligono[0], punto) > 0)
+        izqDer = function(a){return a > 0};
+    else
+        izqDer = function(a){return a < 0};
+    for(var i = 0; i < poligono.length - 1; i++){
+        if(!izqDer(orientacion(poligono[i], poligono[i+1], punto))) return false;
+    }
+    return true;
+}
+
 var sitios = Util.generaSitiosAleatorios(30);
