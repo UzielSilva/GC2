@@ -11,7 +11,32 @@ Util.generaSitiosAleatorios = function(number,xMax, yMax, xMin, yMin){
         ret.push({x:Math.random()*xM + xm,y:Math.random()*yM + ym});
     }
     return ret;
-}
+};
+
+Util.generaObjetosAleatorios = function(number,xMax, yMax, xMin, yMin){
+    var xM = (xMax?xMax:300),
+        xm = (xMin?xMin:0),
+        yM = (yMax?yMax:300),
+        ym = (yMin?yMin:0);
+    
+    var ret = [];
+    for (var i = 0; i < number; i++) {
+        var x1 = Math.random()*xM + xm;
+        var x2 = Math.random()*xM + xm;
+        var y1 = Math.random()*yM + ym;
+        var y2 = Math.random()*yM + ym;
+        var obj = {guardias:[{x:x1,y:y1},
+                           {x:x1,y:y2},
+                           {x:x2,y:y1},
+                           {x:x2,y:y2}]}
+        obj.guardias.forEach(function(x){
+            x.obj = obj;
+        });
+        ret.push(obj);
+
+    }
+    return ret;
+};
 
 Util.generaRangosAleatorios = function(number,xMax, yMax, xMin, yMin){
     var xM = (xMax?xMax:300),
@@ -26,7 +51,30 @@ Util.generaRangosAleatorios = function(number,xMax, yMax, xMin, yMin){
         ret.push([Math.min(v1,v2), Math.max(v1,v2)]);
     }
     return ret;
-}
+};
+
+Util.encuentraMaxMin = function(puntos){
+    if(!puntos || puntos.length == 0)
+        return null;
+    var maxX = {x:-Infinity};
+    var minX = {x:Infinity};
+    var maxY = {y:-Infinity};
+    var minY = {y:Infinity};
+    puntos.forEach(function(punto){
+        if(punto.x > maxX.x)
+            maxX = punto;
+        if(punto.x < minX.x)
+            minX = punto;
+        if(punto.y > maxY.y)
+            maxY = punto;
+        if(punto.y < minY.y)
+            minY = punto;
+    });
+    return {maxX: maxX,
+            minX: minX,
+            maxY: maxY,
+            minY: minY};
+};
 
 // poligono := [{x, y},...], el poligono debe ser convexo, los vértices ordenados.
 // punto : {x, y}
@@ -46,6 +94,6 @@ Util.prototype.enPoligono = function(poligono, punto){
         if(!izqDer(orientacion(poligono[i], poligono[i+1], punto))) return false;
     }
     return true;
-}
+};
 
 var sitios = Util.generaSitiosAleatorios(30);

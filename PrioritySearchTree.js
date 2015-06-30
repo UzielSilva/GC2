@@ -1,13 +1,14 @@
-function PrioritySearchTree(puntos){
-    puntos.sort(function(a,b){return a.y - b.y});
+function PrioritySearchTree(puntos, noOrdena){
+    if(!noOrdena)
+        puntos.sort(function(a,b){return a.y - b.y});
     this.construye(puntos, this);
 }
 
 PrioritySearchTree.prototype.construye = function(arreglo, objeto) {
     if(arreglo.length > 0){
         var mediana = ((arreglo.length + 1) >> 1) - 1;
-        objeto.izq = this.construye(arreglo.slice(0,mediana),{});
-        objeto.der = this.construye(arreglo.slice(mediana + 1),{});
+        objeto.izq = new PrioritySearchTree(arreglo.slice(0,mediana),true);
+        objeto.der = new PrioritySearchTree(arreglo.slice(mediana + 1),true);
         objeto.raiz = arreglo[mediana];
         this.acomoda(objeto);
         return objeto;
@@ -32,7 +33,7 @@ PrioritySearchTree.prototype.acomoda = function(objeto) {
         var temp = objeto.raiz;
         objeto.raiz = objeto[lado].raiz;
         objeto[lado].raiz =  temp;
-        this.acomoda(objeto[lado])
+        this.acomoda(objeto[lado]);
     }
 };
 
