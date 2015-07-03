@@ -1,4 +1,5 @@
 function PrioritySearchTree(puntos, noOrdena){
+    this.maxMin = Util.encuentraMaxMin(puntos);
     if(!noOrdena)
         puntos.sort(function(a,b){return a.y - b.y});
     this.construye(puntos, this);
@@ -15,25 +16,48 @@ PrioritySearchTree.prototype.construye = function(arreglo, objeto) {
     }else return null;
 };
 
-PrioritySearchTree.prototype.acomoda = function(objeto) {
-    if(!objeto.izq && !objeto.der)
+PrioritySearchTree.prototype.acomoda = function(objeto, l) {
+    if(!objeto.izq.raiz && !objeto.der.raiz)
         return;
-    var lado;
+    var lado1, lado2;
     var xIzq = Infinity;
     var xDer = Infinity;
-    if(objeto.izq)
-        xIzq = objeto.izq.raiz.x;
-    if(objeto.der)
-        xDer = objeto.der.raiz.x;
-    if(xIzq > xDer)
-        lado = 'der';
-    else
-        lado = 'izq';
-    if(objeto.raiz.x > objeto[lado].raiz.x){
+    if(l && objeto[l].raiz && objeto.raiz.x > objeto[l].raiz.x){
+        d3.select("#Voronoi").select("g").remove();
+        objeto.dibujar("#Voronoi");
         var temp = objeto.raiz;
-        objeto.raiz = objeto[lado].raiz;
-        objeto[lado].raiz =  temp;
-        this.acomoda(objeto[lado]);
+        objeto.raiz = objeto[l].raiz;
+        objeto[l].raiz =  temp;
+        this.acomoda(objeto[l],l);
+        d3.select("#Voronoi").select("g").remove();
+        objeto.dibujar("#Voronoi");
+    }
+    
+    if(objeto.izq.raiz)
+        xIzq = objeto.izq.raiz.x;
+    if(objeto.der.raiz)
+        xDer = objeto.der.raiz.x;
+    if(xIzq > xDer){
+        lado1 = 'der';
+        lado2 = 'izq';
+    } else {
+        lado1 = 'izq';
+        lado2 = 'der';
+    }
+    if(objeto.raiz.x > objeto[lado1].raiz.x){
+        d3.select("#Voronoi").select("g").remove();
+        objeto.dibujar("#Voronoi");
+        var temp = objeto.raiz;
+        var temp2 = objeto.izq;
+        objeto.raiz = objeto[lado1].raiz;
+        objeto[lado1].raiz =  temp;
+        this.acomoda(objeto[lado1], lado2);
+        if(lado == 'der'){
+            objeto.izq = objeto.der;
+            objeto.der = temp2;
+        }
+        d3.select("#Voronoi").select("g").remove();
+        objeto.dibujar("#Voronoi");
     }
 };
 
@@ -80,7 +104,7 @@ PrioritySearchTree.prototype.busca = function(qx, qy) {
         }
     }
     return reportados;
-}
+};
 
 PrioritySearchTree.prototype.reportaSubArbol = function(nodo, reportados, qx){
     if(nodo && nodo.raiz.x <= qx){
@@ -88,4 +112,27 @@ PrioritySearchTree.prototype.reportaSubArbol = function(nodo, reportados, qx){
         this.reportaSubArbol(nodo.izq);
         this.reportaSubArbol(nodo.der);
     }
-}
+};
+
+PrioritySearchTree.prototype.dibujar = function(id, canvas) {
+    if(!this.raiz) return;
+    var c = canvas;
+    if(!c){
+        var bBox = {xMin: this.maxMin.xMin.x,
+                    xMax: this.maxMin.xMax.x,
+                    yMin: this.maxMin.yMin.y,
+                    yMax: this.maxMin.yMax.y};
+        c = new Util.creaCanvas(id, bBox);
+    }
+    c.dibujaPunto(this.raiz);
+
+    if(this.izq.raiz){
+        c.dibujaLinea(this.raiz, this.izq.raiz, "green");
+        this.izq.dibujar(id, c);
+    }
+    
+    if(this.der.raiz){
+        c.dibujaLinea(this.raiz, this.der.raiz, "red");
+        this.der.dibujar(id, c);
+    }
+};

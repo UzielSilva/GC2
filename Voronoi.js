@@ -244,7 +244,7 @@ Voronoi.prototype.calcular = function() {
 };
 
 Voronoi.prototype.dibujar = function(id) {
-    var clipBoundingBox = function(halfEdge,lib){
+    var clipBoundingBox = function(halfEdge,canvas,bBox){
         var s1 = halfEdge.celda.sitio;
         var s2 = halfEdge.par.celda.sitio;
         var m = (s1.x - s2.x)/(s2.y - s1.y);
@@ -253,19 +253,19 @@ Voronoi.prototype.dibujar = function(id) {
         var xEv, yEv;
         if (m > 0){
             if(s1.x > s2.x){
-                xEv = lib.bBox.xMax;
-                yEv = lib.bBox.yMax;
+                xEv = bBox.xMax;
+                yEv = bBox.yMax;
             }else{
-                xEv = lib.bBox.xMin;
-                yEv = lib.bBox.yMin;
+                xEv = bBox.xMin;
+                yEv = bBox.yMin;
             }
         } else {
             if(s1.x > s2.x){
-                xEv = lib.bBox.xMin;
-                yEv = lib.bBox.yMax;
+                xEv = bBox.xMin;
+                yEv = bBox.yMax;
             }else{
-                xEv = lib.bBox.xMax;
-                yEv = lib.bBox.yMin;
+                xEv = bBox.xMax;
+                yEv = bBox.yMin;
             }
         }
         var yP = m*(xEv - p.x) + p.y;
@@ -280,8 +280,8 @@ Voronoi.prototype.dibujar = function(id) {
         return v;
     }
     var v = this;
-    var dibujaSitios = function(lib){
-        v.sitios.forEach(function(x){lib.drawPoint(x)});
+    var dibujaSitios = function(canvas){
+        v.sitios.forEach(function(x){canvas.dibujaPunto(x)});
     }
     var bBox = {xMin: 0, xMax: 300, yMin: 0, yMax: 300}
     this.diagrama.dibujar(id,bBox,true,clipBoundingBox,dibujaSitios);

@@ -7,8 +7,8 @@ function QuadTree(puntos, minimoEnConjunto, cuadrado) {
             var limites = Util.encuentraMaxMin(puntos);
             var xOy;
             var yOx;
-            if(limites.maxX.x - limites.minX.x >
-                limites.maxY.y - limites.minY.y)
+            if(limites.xMax.x - limites.xMin.x >
+                limites.yMax.y - limites.yMin.y)
             {
                 xOy = 'x';
                 yOx = 'y';
@@ -16,16 +16,15 @@ function QuadTree(puntos, minimoEnConjunto, cuadrado) {
                 xOy = 'y';
                 yOx = 'x';
             }
-            var l = limites['max' + xOy.toUpperCase()][xOy] - limites['min' + xOy.toUpperCase()][xOy];
-            var m = (limites['max' + xOy.toUpperCase()][yOx] + limites['min' + xOy.toUpperCase()][yOx])/2;
+            var l = limites[xOy +'Max'][xOy] - limites[xOy + 'Min'][xOy];
             var p1 = {}, 
                 p2 = {}, 
                 p3 = {}, 
                 p4 = {};
-            p1[xOy] = limites['min' + xOy.toUpperCase()][xOy];
-            p1[yOx] = m - l/2;
-            p2[xOy] = limites['max' + xOy.toUpperCase()][xOy];
-            p2[yOx] = m + l/2;
+            p1[xOy] = limites[xOy + 'Min'][xOy];
+            p1[yOx] = limites[yOx + 'Min'][yOx];
+            p2[xOy] = limites[xOy + 'Max'][xOy];
+            p2[yOx] = limites[yOx + 'Min'][yOx] + l;
             c = [p1 ,p2];
         }
 
@@ -70,6 +69,7 @@ QuadTree.prototype.construye = function(puntos, cuadrado, objeto){
     objeto.NE.padre = objeto;
     objeto.SO.padre = objeto;
     objeto.SE.padre = objeto;
+    objeto.cuadrado = cuadrado;
     return objeto;
 };
 
@@ -119,5 +119,30 @@ QuadTree.prototype.vecino = function(nodo, direccion){
                 else return v.padre.SO;
                 break;
         }
+    }
+};
+
+QuadTree.prototype.dibujar = function(id, canvas){
+    var c = canvas;
+    if(!c){
+        var bBox = {xMin: this.cuadrado[0].x,
+                   yMin: this.cuadrado[0].y,
+                   xMax: this.cuadrado[1].x,
+                   yMax: this.cuadrado[1].y}
+        c = Util.creaCanvas(id,bBox);
+    }
+    var p1 = {x: this.cuadrado[0].x, y: this.cuadrado[1].y};
+    var p2 = {x: this.cuadrado[1].x, y: this.cuadrado[0].y};
+    c.dibujaLinea(this.cuadrado[0], p1);
+    c.dibujaLinea(this.cuadrado[0], p2);
+    c.dibujaLinea(this.cuadrado[1], p1);
+    c.dibujaLinea(this.cuadrado[1], p2);
+    if(this.NO){
+        this.NO.dibujar(id,c);
+        this.NE.dibujar(id,c);
+        this.SO.dibujar(id,c);
+        this.SE.dibujar(id,c);
+    }else{
+        this.puntos.forEach(function(x){c.dibujaPunto(x)});
     }
 };

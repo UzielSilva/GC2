@@ -47,51 +47,19 @@ DCEL.prototype.dibujar = function(id, boundingBox, expand, clipBoundingBox, anot
             bBox.yMax = yMax;
     }
     
-    this.bBox = bBox;
+    var canvas = Util.creaCanvas(id, bBox, margin);
     
-    if(!id)
-        throw 'You need an id!'
-        
-    var svg = d3.select(id);
-        
-    var scaleX = (svg.attr("width")-0)/((bBox.xMax - bBox.xMin)+2*margin);
-    var scaleY = (svg.attr("height")-0)/((bBox.yMax - bBox.yMin)+2*margin);
-    
-    var scale = Math.min(scaleX,scaleY);
-    
-    var canvas = svg
-        .append("g")
-        .attr("transform","scale("+scale+")")
-    
-    this.drawLine = function(v1, v2){
-        canvas.append("line")
-            .attr("x1", v1.x - bBox.xMin + margin)
-            .attr("x2", v2.x - bBox.xMin + margin)
-            .attr("y1", v1.y - bBox.yMin + margin)
-            .attr("y2", v2.y - bBox.yMin + margin)
-            .attr("stroke-width", 2)
-            .attr("stroke", "black");
-    }
-    
-    this.drawPoint = function(v){
-        canvas.append("circle")
-            .attr("cx", v.x - bBox.xMin + margin)
-            .attr("cy", v.y - bBox.yMin + margin)
-            .attr("r", 3)
-            .style("fill", function(d) { return "blue"; });
-    }
-    var lib = this;
     this.vertices.forEach(function(vert) {
         var he = vert.halfEdge;
         if(he){
             do{
                 var v = he.par.vertice;
                 if(v){
-                    lib.drawLine(vert.coords, v.coords);
+                    canvas.dibujaLinea(vert.coords, v.coords);
                 } else {
                     if(clipBoundingBox && typeof clipBoundingBox == "function"){
-                        var v2 = clipBoundingBox(he.par,lib);
-                        lib.drawLine(vert.coords,v2);
+                        var v2 = clipBoundingBox(he.par,canvas,bBox);
+                        canvas.dibujaLinea(vert.coords,v2);
                     }
                 }
                 he = he.par.sig;
@@ -99,16 +67,16 @@ DCEL.prototype.dibujar = function(id, boundingBox, expand, clipBoundingBox, anot
         }
     });
 
-    var circles = canvas.selectAll("circle")
+    var circles = canvas.gNode.selectAll("circle")
                       .data(this.vertices)
                       .enter()
                       .append("circle")
 
     var circleAttributes = circles
-                        .attr("cx", function (d) { return d.coords.x - bBox.xMin + margin; })
-                        .attr("cy", function (d) { return d.coords.y - bBox.yMin + margin; })
+                        .attr("cx", function (d) { return d.coords.x; })
+                        .attr("cy", function (d) { return d.coords.y; })
                         .attr("r", 3)
                         .style("fill", function(d) { return "red"; });
     if(anotherDrawings)
-        anotherDrawings(this);
+        anotherDrawings(canvas);
 };

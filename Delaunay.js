@@ -419,5 +419,9 @@ Delaunay.prototype.calcular = function(){
     this.quitarVerticesAuxiliares();
 };
 
+Delaunay.prototype.dibujar = function(id){
+    this.triangulacion.dibujar(id);
+};
+
 var d = new Delaunay(sitios);
 d.calcular();
