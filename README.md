@@ -1,4 +1,4 @@
-# Computational Geometry, 2nd Course, made with love in JavaScript
+# Computational Geometry, 2nd Course, made with love in JavaScript (and with TypeScript soon <3)
 Includes:
  - AVL Tree
  - Doubly Connected Edge List
